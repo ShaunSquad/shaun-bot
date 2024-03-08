@@ -2,6 +2,9 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import { Client } from "discord.js";
 import { SlashCommandBuilder } from "@discordjs/builders";
+import * as dotenv from "dotenv";
+
+dotenv.config({ path: "./.env" });
 
 export const registerSlashCommands = async (
   client: Client,
@@ -56,7 +59,7 @@ export const registerSlashCommands = async (
   try {
     console.log("Started refreshing application (/) commands.");
       await rest.put(
-        Routes.applicationGuildCommands(client.user?.id as string, "824467016986525707"),
+        Routes.applicationCommands(process.env.APPLICATION_ID!),
         { body: commands }
       );
 
