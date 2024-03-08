@@ -1,12 +1,10 @@
 import * as dotenv from "dotenv";
-import rollD20 from "./commands/rollD20";
-import rollD12 from "./commands/rollD12";
-import rollD100 from "./commands/rollD100";
-import rollD8 from "./commands/rollD8";
-import rollD10 from "./commands/rollD10";
-import rollD4 from "./commands/rollD4";
-import rollD6 from "./commands/rollD6";
-const { Client, GatewayIntentBits } = require("discord.js");
+import { Client, GatewayIntentBits } from "discord.js";
+import { registerSlashCommands } from "./registerCommands";
+import { diceHandler } from "./commands/rolls/diceHandler";
+import { spellsHandler } from "./commands/spells/spellsHandler";
+import { spellHandler } from "./commands/spells/spellHandler";
+import { classLevelHandler } from "./commands/classes/classLevelHandler";
 
 dotenv.config({ path: "./.env" });
 
@@ -20,58 +18,32 @@ const client = new Client({
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user?.tag}!`);
+  registerSlashCommands(client);
 });
 
-client.on("messageCreate", (message: any) => {
-  const content = message.content.split(" ");
-  if (content[0] === "!d20") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD20(message, rolls);
-  } else if (content[0] === "!d20") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD12(message, rolls);
-  } else if (content[0] === "!d100") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD100(message, rolls);
-  } else if (content[0] === "!d8") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD8(message, rolls);
-  } else if (content[0] === "!d10") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD10(message, rolls);
-  } else if (content[0] === "!d4") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD4(message, rolls);
-  } else if (content[0] === "!d6") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD6(message, rolls);
-  } else if (content[0] === "!d12") {
-    let rolls = 1;
-    if (content.length > 1) {
-      rolls = parseInt(content[1]);
-    }
-    rollD12(message, rolls);
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isChatInputCommand()) {
+    return;
+  }
+
+  if (interaction.commandName === "roll") {
+    const expression = interaction.options.getString("expression");
+    diceHandler(interaction, expression);
+  }
+
+  if (interaction.commandName === "spells") {
+    const className = interaction.options.getString("class") ?? undefined;
+    spellsHandler(interaction, className);
+  }
+
+  if (interaction.commandName === "spell") {
+    const spellName = interaction.options.getString("name");
+    spellHandler(interaction, spellName)
+  }
+
+  if (interaction.commandName === "level") {
+    const className = interaction.options.getString("class") ?? undefined;
+    classLevelHandler(interaction, className);  
   }
 });
 
